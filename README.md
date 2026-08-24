@@ -12,9 +12,20 @@ Scenario Prism is designed as a dark executive simulation chamber: one monumenta
 - 6-month, 1-year, and 3-year outcome horizon.
 - Assumption toggles deform the prism and recalculate cost, productivity, risk, adoption, and uncertainty.
 - `MeshTransmissionMaterial` plus postprocessing makes uncertainty physically visible as optical distortion.
+- Evidence strength directly controls material roughness, fog, aberration, Bloom and Depth of Field clarity.
 - `maath` damping couples scenario transitions to camera and object motion.
 - Streaming `Ask the Skeptic` adversarial analysis.
-- CSS fallback when WebGL is unavailable and reduced-motion handling.
+- CSS fallback when WebGL is unavailable, reduced-motion handling, low-power DPR/effect reduction, and off-screen frameloop suspension.
+
+## Visual reference adoption
+
+The required catalog is preserved verbatim at [`docs/visual-reference-catalog.md`](docs/visual-reference-catalog.md). Detailed README/LICENSE/demo checks, local implementation comparisons and adoption decisions live in [`docs/reference-adoption.md`](docs/reference-adoption.md).
+
+### Latest captures
+
+![Scenario Prism desktop](./public/preview.png)
+
+![Scenario Prism mobile](./public/preview-mobile.png)
 
 ## Run locally
 

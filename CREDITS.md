@@ -41,3 +41,20 @@ Scenario Prism uses open-source rendering primitives. No commercial Framer compo
 - Repository: https://github.com/lucide-icons/lucide
 - License: ISC
 - Use: industrial interface iconography.
+
+## Paper Shaders
+- Repository: https://github.com/paper-design/shaders
+- Steward: Paper Design contributors
+- License: Apache-2.0
+- Use: shader/material vocabulary reference for evidence clarity and uncertainty controls. No Paper Shaders source code is included.
+
+## Liquid Glass Studio
+- Repository: https://github.com/iyinchao/liquid-glass-studio
+- Author: repository contributors
+- License: MIT
+- Use: refraction parameter and live material-tuning reference only. No source code is copied.
+
+## ShaderGradient
+- Repository: https://github.com/ruucm/shadergradient
+- License: no LICENSE file detected during 2026-08-23 verification
+- Use: visual reference only for spectral hero composition. No source code is copied.

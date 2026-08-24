@@ -75,6 +75,12 @@ button:focus-visible { outline: 1px solid var(--cyan); outline-offset: 4px; }
 .gauge-spectrum { height: 2px; background: #232b33; }
 .gauge-spectrum i { display: block; margin-left: auto; height: 2px; background: linear-gradient(90deg, #86d9ff, #e68bff, #ff7d8d); box-shadow: 0 0 9px rgba(218, 146, 255, .45); }
 .uncertainty-gauge small { display: block; margin-top: 6px; color: #3f4b55; font-size: 7px; letter-spacing: .08em; }
+.evidence-strength { display: grid; gap: 5px; margin-top: 12px; padding-top: 9px; border-top: 1px solid rgba(139, 167, 190, .18); }
+.evidence-strength span { display: flex; justify-content: space-between; font: 7px 'IBM Plex Mono', monospace; letter-spacing: .08em; color: #607180; }
+.evidence-strength b { color: #b4d6ec; font-weight: 400; }
+.evidence-strength input { width: 100%; accent-color: #9bd5ff; cursor: ew-resize; }
+.prism-shell.low-power .optical-grid { opacity: .32; }
+.prism-shell.low-power .cursor-block { animation: none; }
 
 .timeline-console { position: absolute; z-index: 16; bottom: 0; left: 0; right: 0; height: 84px; border-top: 1px solid var(--line); background: #05080b; display: grid; grid-template-columns: 180px minmax(320px, 1fr) 230px; align-items: center; gap: 28px; padding: 0 24px; }
 .timeline-label, .decision-output { font: 8px 'IBM Plex Mono', monospace; letter-spacing: .12em; color: #64717e; display: flex; align-items: center; gap: 7px; }
@@ -133,6 +139,8 @@ button:focus-visible { outline: 1px solid var(--cyan); outline-offset: 4px; }
   .uncertainty-gauge { top: 92px; right: 12px; bottom: auto; width: 112px; }
   .uncertainty-gauge strong { font-size: 28px; }
   .uncertainty-gauge small { display: none; }
+  .evidence-strength { margin-top: 6px; padding-top: 6px; }
+  .evidence-strength span { font-size: 6px; }
   .timeline-console { height: 112px; padding: 0 12px; grid-template-columns: 1fr; gap: 0; align-content: center; }
   .timeline-label { margin-bottom: 4px; }
   .skeptic-panel { top: 68px; right: 12px; width: calc(100vw - 24px); }

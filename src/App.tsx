@@ -1,7 +1,7 @@
-import { Suspense, useMemo, useRef, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float, MeshTransmissionMaterial, Sparkles } from '@react-three/drei';
-import { Bloom, ChromaticAberration, EffectComposer, Noise, Vignette } from '@react-three/postprocessing';
+import { Bloom, ChromaticAberration, DepthOfField, EffectComposer, Noise, Vignette } from '@react-three/postprocessing';
 import { easing } from 'maath';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { BlendFunction } from 'postprocessing';
@@ -58,9 +58,10 @@ function CameraRig({ scenario, reduced }: { scenario: ScenarioName; reduced: boo
   return null;
 }
 
-function PrismObject({ scenario, uncertainty, assumptions, reduced }: {
+function PrismObject({ scenario, uncertainty, evidenceStrength, assumptions, reduced }: {
   scenario: ScenarioName;
   uncertainty: number;
+  evidenceStrength: number;
   assumptions: Record<AssumptionKey, boolean>;
   reduced: boolean;
 }) {
@@ -89,15 +90,15 @@ function PrismObject({ scenario, uncertainty, assumptions, reduced }: {
           <octahedronGeometry args={[1, 0]} />
           <MeshTransmissionMaterial
             transmission={1}
-            thickness={1.45 + uncertainty / 85}
-            roughness={0.08 + uncertainty / 900}
-            chromaticAberration={0.05 + uncertainty / 450}
+            thickness={1.25 + uncertainty / 90}
+            roughness={Math.max(.025, 0.14 + uncertainty / 800 - evidenceStrength / 900)}
+            chromaticAberration={0.025 + uncertainty / 500 + (100 - evidenceStrength) / 1800}
             anisotropy={0.25}
-            distortion={0.08 + uncertainty / 260}
-            distortionScale={0.28}
-            temporalDistortion={reduced ? 0 : 0.06 + uncertainty / 700}
-            samples={5}
-            resolution={256}
+            distortion={0.04 + uncertainty / 270 + (100 - evidenceStrength) / 900}
+            distortionScale={0.22 + (100 - evidenceStrength) / 400}
+            temporalDistortion={reduced ? 0 : 0.03 + uncertainty / 820}
+            samples={reduced ? 3 : 5}
+            resolution={reduced ? 128 : 256}
             color={scenario === 'Aggressive' ? '#e7f0ff' : scenario === 'Conservative' ? '#f2f4f6' : '#ffffff'}
           />
         </mesh>
@@ -118,30 +119,43 @@ function PrismObject({ scenario, uncertainty, assumptions, reduced }: {
   );
 }
 
-function DecisionScene({ scenario, uncertainty, assumptions, reduced }: {
+function DecisionScene({ scenario, uncertainty, evidenceStrength, assumptions, reduced, lowPower, active }: {
   scenario: ScenarioName;
   uncertainty: number;
+  evidenceStrength: number;
   assumptions: Record<AssumptionKey, boolean>;
   reduced: boolean;
+  lowPower: boolean;
+  active: boolean;
 }) {
   const chromaticOffset = useMemo(() => new Vector2(uncertainty / 42000, uncertainty / 70000), [uncertainty]);
   return (
-    <Canvas camera={{ position: [0, .2, 7.4], fov: 39 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+    <Canvas camera={{ position: [0, .2, 7.4], fov: 39 }} dpr={lowPower ? [1, 1.1] : [1, 1.5]} frameloop={active ? 'always' : 'never'} gl={{ antialias: !lowPower, alpha: true }}>
       <color attach="background" args={['#030507']} />
-      <fog attach="fog" args={['#030507', 5.5, 13]} />
+      <fog attach="fog" args={['#030507', 5.1 + evidenceStrength / 120, 10.8 + evidenceStrength / 28]} />
       <ambientLight intensity={0.22} />
       <spotLight position={[-5, 4, 6]} intensity={25} angle={0.24} penumbra={0.9} color="#9dc9ff" />
       <spotLight position={[5, 1, 3]} intensity={18} angle={0.34} penumbra={1} color="#f39dff" />
       <pointLight position={[0, -3, 2]} intensity={12} color="#ffffff" />
       <CameraRig scenario={scenario} reduced={reduced} />
-      <PrismObject scenario={scenario} uncertainty={uncertainty} assumptions={assumptions} reduced={reduced} />
-      <Sparkles count={reduced ? 18 : 58} scale={[9, 5, 5]} size={1.1} speed={reduced ? 0 : .12} opacity={.22} color="#d8e8ff" />
-      <EffectComposer multisampling={0}>
-        <Bloom luminanceThreshold={0.55} luminanceSmoothing={0.82} intensity={0.82} mipmapBlur />
-        <ChromaticAberration offset={chromaticOffset} radialModulation modulationOffset={0.26} />
-        <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.12} />
-        <Vignette eskil={false} offset={0.18} darkness={0.9} />
-      </EffectComposer>
+      <PrismObject scenario={scenario} uncertainty={uncertainty} evidenceStrength={evidenceStrength} assumptions={assumptions} reduced={reduced || lowPower} />
+      <Sparkles count={reduced || lowPower ? 16 : 58} scale={[9, 5, 5]} size={1.1} speed={reduced || lowPower ? 0 : .12} opacity={.12 + evidenceStrength / 900} color="#d8e8ff" />
+      {lowPower ? (
+        <EffectComposer multisampling={0}>
+          <Bloom luminanceThreshold={0.55} luminanceSmoothing={0.82} intensity={.42} mipmapBlur={false} />
+          <ChromaticAberration offset={chromaticOffset} radialModulation modulationOffset={0.26} />
+          <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.08} />
+          <Vignette eskil={false} offset={0.18} darkness={0.9} />
+        </EffectComposer>
+      ) : (
+        <EffectComposer multisampling={0}>
+          <Bloom luminanceThreshold={0.55} luminanceSmoothing={0.82} intensity={.62 + evidenceStrength / 420} mipmapBlur />
+          <ChromaticAberration offset={chromaticOffset} radialModulation modulationOffset={0.26} />
+          <DepthOfField focusDistance={.018 + evidenceStrength / 9000} focalLength={.025} bokehScale={Math.max(.6, (100 - evidenceStrength) / 24)} height={360} />
+          <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.12} />
+          <Vignette eskil={false} offset={0.18} darkness={0.9} />
+        </EffectComposer>
+      )}
     </Canvas>
   );
 }
@@ -165,8 +179,15 @@ function MetricHUD({ label, value, suffix = '%', align = 'left', icon }: {
 export function App() {
   const reduced = Boolean(useReducedMotion());
   const webgl = useMemo(() => supportsWebGL(), []);
+  const lowPower = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    const device = navigator as Navigator & { deviceMemory?: number };
+    return (device.hardwareConcurrency > 0 && device.hardwareConcurrency <= 4) || Boolean(device.deviceMemory && device.deviceMemory <= 4);
+  }, []);
+  const [documentVisible, setDocumentVisible] = useState(() => typeof document === 'undefined' || document.visibilityState !== 'hidden');
   const [scenario, setScenario] = useState<ScenarioName>('Base');
   const [horizon, setHorizon] = useState<Horizon>(1);
+  const [evidenceStrength, setEvidenceStrength] = useState(72);
   const [assumptions, setAssumptions] = useState<Record<AssumptionKey, boolean>>({
     dataReady: true,
     operatorTraining: true,
@@ -187,6 +208,12 @@ export function App() {
   const adoption = Math.max(18, Math.min(96, Math.round(profile.adoption + (assumptions.operatorTraining ? 9 : -16) + horizon * 4)));
   const scenarioIndex = scenarios.indexOf(scenario);
 
+  useEffect(() => {
+    const onVisibility = () => setDocumentVisible(document.visibilityState !== 'hidden');
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+
   const changeScenario = (direction: -1 | 1) => {
     const next = Math.max(0, Math.min(2, scenarioIndex + direction));
     setScenario(scenarios[next]);
@@ -206,7 +233,7 @@ export function App() {
   };
 
   return (
-    <main className="prism-shell">
+    <main className={`prism-shell ${lowPower ? 'low-power' : ''}`}>
       <div className="optical-grid" aria-hidden="true" />
       <header className="chamber-header">
         <div className="chamber-brand"><ScanLine size={17} /><span>SCENARIO PRISM</span><b>DECISION THEATER / 02</b></div>
@@ -226,7 +253,7 @@ export function App() {
       >
         {webgl ? (
           <Suspense fallback={<div className="render-fallback">CALIBRATING OPTICS ···</div>}>
-            <DecisionScene scenario={scenario} uncertainty={uncertainty} assumptions={assumptions} reduced={reduced} />
+            <DecisionScene scenario={scenario} uncertainty={uncertainty} evidenceStrength={evidenceStrength} assumptions={assumptions} reduced={reduced} lowPower={lowPower} active={documentVisible} />
           </Suspense>
         ) : (
           <div className="css-prism-fallback" aria-label="2D prism fallback"><i /><i /><i /></div>
@@ -274,6 +301,10 @@ export function App() {
           <strong>{uncertainty}<span>%</span></strong>
           <div className="gauge-spectrum"><i style={{ width: `${uncertainty}%` }} /></div>
           <small>OPTICAL DISTORTION IS MODEL-COUPLED</small>
+          <label className="evidence-strength">
+            <span>EVIDENCE CLARITY <b>{evidenceStrength}</b></span>
+            <input aria-label="Evidence strength" type="range" min="20" max="100" value={evidenceStrength} onChange={(event) => setEvidenceStrength(Number(event.target.value))} />
+          </label>
         </div>
       </section>
 
