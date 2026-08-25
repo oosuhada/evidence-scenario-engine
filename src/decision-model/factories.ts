@@ -220,8 +220,8 @@ export function createSampleDecision(): StrategyDecision {
     {
       id: 'ev-pilot-yield',
       title: 'Vision pilot defect-detection study',
-      source: 'Internal pilot / Line 3 / 8 weeks',
-      note: 'Observed a 14% reduction in manual re-checks; sample does not cover night shift.',
+      source: 'Synthetic pilot fixture / Line 3 / 8 weeks',
+      note: 'Illustrative reference value: 14% fewer manual re-checks. This is synthetic data and does not represent an observed deployment.',
       strength: 0.82,
       relevance: 0.92,
       stance: 'supports',
@@ -231,8 +231,8 @@ export function createSampleDecision(): StrategyDecision {
     {
       id: 'ev-training',
       title: 'Operator training interviews',
-      source: '18 operator interviews',
-      note: 'Adoption was positive when overrides were visible; union consultation is not complete.',
+      source: 'Synthetic interview fixture / 18 operators',
+      note: 'Illustrative reference signal: adoption improves when overrides are visible. This is synthetic data.',
       strength: 0.64,
       relevance: 0.8,
       stance: 'supports',
@@ -242,8 +242,8 @@ export function createSampleDecision(): StrategyDecision {
     {
       id: 'ev-mes-gap',
       title: 'MES integration gap assessment',
-      source: 'Architecture review / Rev 2',
-      note: 'Legacy line controllers require an adapter layer not included in the original estimate.',
+      source: 'Synthetic architecture review / Rev 2',
+      note: 'Illustrative reference risk: legacy controllers require an adapter layer. This is synthetic data.',
       strength: 0.88,
       relevance: 0.95,
       stance: 'contradicts',
@@ -253,9 +253,9 @@ export function createSampleDecision(): StrategyDecision {
   ];
   return buildDecision({
     templateId: 'ai-adoption',
-    title: 'Manufacturing AI deployment',
-    question: 'How should we deploy generative AI-assisted inspection on the manufacturing floor?',
-    description: 'Balance measurable productivity gains against integration risk, operator adoption, and evidence quality.',
+    title: 'Manufacturing AI rollout — synthetic case',
+    question: 'How should a hypothetical manufacturer stage AI-assisted inspection?',
+    description: 'Synthetic reference case for exploring productivity, integration risk, operator adoption, and evidence quality. Replace all reference inputs before real decision use.',
     alternatives,
     evidence,
   });

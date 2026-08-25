@@ -92,17 +92,17 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
   return (
     <main className="home-shell">
       <header className="home-header">
-        <div className="brand-lockup"><FlaskConical size={18} /><span>SCENARIO PRISM</span><b>STRATEGY DECISION SIMULATOR</b></div>
+        <div className="brand-lockup"><FlaskConical size={18} /><span>EVIDENCE SCENARIO ENGINE</span><b>DECISION MODEL WORKBENCH</b></div>
         <div className="home-model-tag">MODEL / DETERMINISTIC 2.0</div>
       </header>
 
       <section className="home-hero">
         <span className="eyebrow">MODEL → CHALLENGE → RECORD</span>
         <h1>Turn strategic assumptions into a decision you can inspect.</h1>
-        <p>Scenario Prism keeps calculation, evidence, uncertainty and critique separate. The 3D prism is an interface to model state—not a forecast and not decoration.</p>
+        <p>Keep calculation, evidence, uncertainty, and critique separate. The analytical views are primary; the 3D prism is a secondary encoding of the same inspectable model state.</p>
         <div className="hero-actions">
           <button type="button" className="primary-action" onClick={() => void saveAndOpen(createBlankDecision())}><Plus size={15} /> Create blank decision</button>
-          <button type="button" className="secondary-action" onClick={() => void saveAndOpen(createSampleDecision())}><FlaskConical size={15} /> Open sample decision</button>
+          <button type="button" className="secondary-action" onClick={() => void saveAndOpen(createSampleDecision())}><FlaskConical size={15} /> Open synthetic case</button>
           <button type="button" className="secondary-action" onClick={() => fileInput.current?.click()}><Upload size={15} /> Import CSV / JSON</button>
           <input ref={fileInput} className="visually-hidden" type="file" accept=".json,.csv,application/json,text/csv" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importFile(file); }} />
         </div>
@@ -110,7 +110,7 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
       </section>
 
       <section className="template-index" aria-labelledby="template-heading">
-        <div className="index-heading"><span>STARTING STRUCTURES</span><h2 id="template-heading">Templates</h2><p>Use a domain starting point, then replace every assumption with your own evidence.</p></div>
+        <div className="index-heading"><span>SYNTHETIC STARTING STRUCTURES</span><h2 id="template-heading">Templates</h2><p>Use a synthetic domain structure to understand the model, then replace every assumption and evidence item with your own data.</p></div>
         <div className="template-list">
           {templates.map((template) => (
             <button type="button" key={template.id} onClick={() => void saveAndOpen(createTemplateDecision(template.id))}>

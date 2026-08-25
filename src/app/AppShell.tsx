@@ -56,8 +56,8 @@ export function AppShell() {
     return () => { active = false; };
   }, [refreshDecisions, route]);
 
-  if (loading) return <main className="route-state-screen"><span>SCENARIO PRISM</span><h1>Loading decision state…</h1><div className="route-loader" /></main>;
-  if (error) return <main className="route-state-screen error"><span>SCENARIO PRISM / LOAD ERROR</span><h1>{error}</h1><button type="button" onClick={() => { window.history.pushState({}, '', '/'); setRoute({ kind: 'home' }); }}>Return to decisions</button></main>;
+  if (loading) return <main className="route-state-screen"><span>EVIDENCE SCENARIO ENGINE</span><h1>Loading decision state…</h1><div className="route-loader" /></main>;
+  if (error) return <main className="route-state-screen error"><span>EVIDENCE SCENARIO ENGINE / LOAD ERROR</span><h1>{error}</h1><button type="button" onClick={() => { window.history.pushState({}, '', '/'); setRoute({ kind: 'home' }); }}>Return to decisions</button></main>;
   if (route.kind === 'home') return <HomeScreen decisions={decisions} onRefresh={refreshDecisions} />;
   if (!decision) return <main className="route-state-screen"><h1>Decision unavailable.</h1></main>;
   return <DecisionWorkspace key={`${decision.id}-${route.kind === 'share' ? 'shared' : 'editable'}`} initialDecision={decision} readOnly={route.kind === 'share'} shared={route.kind === 'share'} />;

@@ -164,7 +164,7 @@ export function DecisionWorkspace({ initialDecision, readOnly = false, shared = 
   return (
     <main className={`simulator-shell ${readOnly ? 'read-only' : ''}`}>
       <header className="simulator-header">
-        <button className="brand-button" type="button" onClick={() => navigate('/')}><ArrowLeft size={15} /><FlaskConical size={16} /><span>SCENARIO PRISM</span></button>
+        <button className="brand-button" type="button" onClick={() => navigate('/')}><ArrowLeft size={15} /><FlaskConical size={16} /><span>EVIDENCE SCENARIO ENGINE</span></button>
         <div className="decision-header-title"><span>{shared ? 'READ-ONLY SHARE' : 'STRATEGY DECISION SIMULATOR'}</span><strong>{workspace.decision.title}</strong></div>
         <div className="system-health"><Radio size={11} /><span>MODEL {workspace.run.modelVersion}</span><b className={workspace.persistence}>{readOnly ? 'READ ONLY' : workspace.persistence === 'saving' ? 'SAVING' : workspace.persistence === 'error' ? 'SAVE ERROR' : workspace.persistence === 'offline' ? 'OFFLINE LOCAL' : 'PERSISTED'}</b></div>
         <div className="header-actions">
