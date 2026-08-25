@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: scenario_prism
+      POSTGRES_USER: scenario_prism
+      POSTGRES_PASSWORD: scenario_prism_local
+    ports:
+      - "5434:5432"
+    volumes:
+      - scenario_prism_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scenario_prism -d scenario_prism"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://scenario_prism:scenario_prism_local@postgres:5432/scenario_prism
+      SCENARIO_PRISM_SKEPTIC_URL: ${SCENARIO_PRISM_SKEPTIC_URL:-}
+      SCENARIO_PRISM_SKEPTIC_TOKEN: ${SCENARIO_PRISM_SKEPTIC_TOKEN:-}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  scenario_prism_pgdata:
