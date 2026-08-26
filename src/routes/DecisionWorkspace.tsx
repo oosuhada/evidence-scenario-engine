@@ -32,6 +32,7 @@ import { PrismLegend } from '../components/PrismLegend';
 import { DecisionSetupPanel } from '../components/editor/DecisionSetupPanel';
 import { OutcomeComparison } from '../components/analytical/OutcomeComparison';
 import { SensitivityTornado } from '../components/analytical/SensitivityTornado';
+import { ValidationPriority } from '../components/analytical/ValidationPriority';
 import { DependencyMap } from '../components/analytical/DependencyMap';
 import { CalculationBreakdown } from '../components/analytical/CalculationBreakdown';
 import { EvidenceLedger } from '../components/evidence/EvidenceLedger';
@@ -246,6 +247,7 @@ export function DecisionWorkspace({ initialDecision, readOnly = false, shared = 
 
           <div className="analysis-stack">
             <OutcomeComparison decision={workspace.decision} run={workspace.run} selectedAlternativeId={selectedAlternativeId} onSelect={setSelectedAlternativeId} />
+            <ValidationPriority decision={workspace.decision} sensitivity={workspace.sensitivity} />
             <div className="analysis-columns"><SensitivityTornado rows={workspace.sensitivity} /><CalculationBreakdown decision={workspace.decision} outcome={selectedOutcome} /></div>
             <DependencyMap decision={workspace.decision} />
             <EvidenceLedger decision={workspace.decision} onAdd={workspace.addEvidence} readOnly={readOnly} />

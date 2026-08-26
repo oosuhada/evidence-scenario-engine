@@ -30,6 +30,7 @@ Create or import a decision
 - Alternative scoring with weighted metrics and guardrails.
 - Assumption ranges, confidence, evidence linkage, and unresolved state.
 - Sensitivity analysis using controlled perturbation of assumptions.
+- Validation-priority view that combines model sensitivity, evidence gaps, and unresolved uncertainty to show which assumption should be tested next.
 - Versioned scenarios and explicit comparison between versions.
 - Evidence coverage and provenance ledger.
 - Calculation breakdown and assumption-to-metric dependency map.
