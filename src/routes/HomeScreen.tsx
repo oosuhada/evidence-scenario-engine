@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ArrowRight, FileJson2, FlaskConical, Plus, Upload } from 'lucide-react';
+import { ArrowRight, FileJson2, FlaskConical, Play, Plus, Upload } from 'lucide-react';
 import type { DecisionTemplateId, StrategyDecision } from '../decision-model/types';
 import { createBlankDecision, createSampleDecision, createTemplateDecision } from '../decision-model/factories';
 import { importDecisionSchema } from '../schemas/decision';
@@ -13,9 +13,9 @@ const templates: Array<{ id: Exclude<DecisionTemplateId, 'blank'>; name: string;
   { id: 'product-launch', code: 'T04', name: 'Product launch', description: 'Balance learning velocity, reach, execution capacity and market downside.' },
 ];
 
-async function saveAndOpen(decision: StrategyDecision) {
+async function saveAndOpen(decision: StrategyDecision, guided = false) {
   await decisionRepository.save(decision);
-  navigate(decisionPath(decision.id, decision.activeVersionId));
+  navigate(`${decisionPath(decision.id, decision.activeVersionId)}${guided ? '?tour=1' : ''}`);
 }
 
 function decisionFromCsv(csv: string) {
@@ -102,11 +102,17 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
         <p>Keep calculation, evidence, uncertainty, and critique separate. The analytical views are primary; the 3D prism is a secondary encoding of the same inspectable model state.</p>
         <div className="hero-actions">
           <button type="button" className="primary-action" onClick={() => void saveAndOpen(createBlankDecision())}><Plus size={15} /> Create blank decision</button>
-          <button type="button" className="secondary-action" onClick={() => void saveAndOpen(createSampleDecision())}><FlaskConical size={15} /> Open synthetic case</button>
+          <button type="button" className="secondary-action" onClick={() => void saveAndOpen(createSampleDecision(), true)}><Play size={15} fill="currentColor" /> Try guided case</button>
           <button type="button" className="secondary-action" onClick={() => fileInput.current?.click()}><Upload size={15} /> Import CSV / JSON</button>
           <input ref={fileInput} className="visually-hidden" type="file" accept=".json,.csv,application/json,text/csv" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importFile(file); }} />
         </div>
         {error ? <div className="import-error"><FileJson2 size={14} /> {error}</div> : null}
+      </section>
+
+      <section className="home-onboarding" aria-label="How to use Evidence Scenario Engine">
+        <article><span>01</span><strong>Define the decision</strong><p>Alternatives, metrics, guardrails, and assumptions stay editable and explicit.</p></article>
+        <article><span>02</span><strong>Inspect model sensitivity</strong><p>Evidence and assumption ranges determine uncertainty; validation priority shows what to test next.</p></article>
+        <article><span>03</span><strong>Challenge and record</strong><p>Critique the weak case, set a revisit trigger, then record the human decision separately from the model.</p></article>
       </section>
 
       <section className="template-index" aria-labelledby="template-heading">

@@ -35,6 +35,7 @@ import { SensitivityTornado } from '../components/analytical/SensitivityTornado'
 import { ValidationPriority } from '../components/analytical/ValidationPriority';
 import { DependencyMap } from '../components/analytical/DependencyMap';
 import { CalculationBreakdown } from '../components/analytical/CalculationBreakdown';
+import { DecisionGuide } from '../components/DecisionGuide';
 import { EvidenceLedger } from '../components/evidence/EvidenceLedger';
 import { VersionPanel } from '../components/VersionPanel';
 import { runSkeptic } from '../skeptic/adapter';
@@ -75,6 +76,8 @@ export function DecisionWorkspace({ initialDecision, readOnly = false, shared = 
   const [shareMessage, setShareMessage] = useState('');
   const [contextLost, setContextLost] = useState(false);
   const [actionError, setActionError] = useState('');
+  const [guideOpen, setGuideOpen] = useState(() => new URLSearchParams(window.location.search).get('tour') === '1');
+  const [guideStep, setGuideStep] = useState(0);
 
   useEffect(() => {
     const handler = () => setDocumentVisible(document.visibilityState !== 'hidden');
@@ -166,7 +169,7 @@ export function DecisionWorkspace({ initialDecision, readOnly = false, shared = 
     <main className={`simulator-shell ${readOnly ? 'read-only' : ''}`}>
       <header className="simulator-header">
         <button className="brand-button" type="button" onClick={() => navigate('/')}><ArrowLeft size={15} /><FlaskConical size={16} /><span>EVIDENCE SCENARIO ENGINE</span></button>
-        <div className="decision-header-title"><span>{shared ? 'READ-ONLY SHARE' : 'STRATEGY DECISION SIMULATOR'}</span><strong>{workspace.decision.title}</strong></div>
+        <div className="decision-header-title"><span>{shared ? 'READ-ONLY SHARE' : 'STRATEGY DECISION SIMULATOR'}</span><strong>{workspace.decision.title}</strong><button type="button" className="header-guide-trigger" onClick={() => { setGuideStep(0); setGuideOpen(true); }}>HOW TO USE</button></div>
         <div className="system-health"><Radio size={11} /><span>MODEL {workspace.run.modelVersion}</span><b className={workspace.persistence}>{readOnly ? 'READ ONLY' : workspace.persistence === 'saving' ? 'SAVING' : workspace.persistence === 'error' ? 'SAVE ERROR' : workspace.persistence === 'offline' ? 'OFFLINE LOCAL' : 'PERSISTED'}</b></div>
         <div className="header-actions">
           <div className="view-toggle" role="group" aria-label="Workspace view">
@@ -319,6 +322,7 @@ export function DecisionWorkspace({ initialDecision, readOnly = false, shared = 
           </div>
         </div>
       ) : null}
+      {guideOpen ? <DecisionGuide step={guideStep} onStep={setGuideStep} onClose={() => setGuideOpen(false)} /> : null}
     </main>
   );
 }

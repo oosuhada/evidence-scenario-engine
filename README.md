@@ -38,6 +38,7 @@ Create or import a decision
 - CSV / JSON import and persisted decisions.
 - FastAPI persistence layer and Alembic migrations.
 - 3D prism and 2D fallback as secondary representations of the same model state.
+- Guided synthetic case that opens the full model with a four-step walkthrough covering assumptions, evidence, validation priority, challenge, and the final human decision record.
 
 ## Synthetic reference cases
 
