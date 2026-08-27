@@ -31,6 +31,8 @@ Create or import a decision
 - Assumption ranges, confidence, evidence linkage, and unresolved state.
 - Sensitivity analysis using controlled perturbation of assumptions.
 - Validation-priority view that combines model sensitivity, evidence gaps, and unresolved uncertainty to show which assumption should be tested next.
+- Decision-readiness checklist for unresolved assumptions, missing evidence, guardrail breaches, and recorded human commitment.
+- Break-even explorer that probes configured assumption ranges and reports where the model-rule leader changes.
 - Versioned scenarios and explicit comparison between versions.
 - Evidence coverage and provenance ledger.
 - Calculation breakdown and assumption-to-metric dependency map.

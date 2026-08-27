@@ -4,6 +4,7 @@ const steps = [
   { title: 'Read the decision, not the prism', body: 'Start with the question, alternatives, and current model score. The prism is only another view of the same model state.', target: '.decision-stage' },
   { title: 'Inspect assumptions and evidence', body: 'Change an assumption on the right and compare the evidence ledger. Recompute to see which outcomes move and why.', target: '.inspection-rail' },
   { title: 'Test the weakest assumption first', body: 'Validation Priority ranks assumptions by sensitivity, evidence gap, and unresolved uncertainty so the next research action is explicit.', target: '.validation-priority' },
+  { title: 'Find where the leader changes', body: 'Decision Readiness probes each configured assumption range and shows the nearest sampled value where another alternative becomes the model-rule leader.', target: '.decision-readiness' },
   { title: 'Challenge before recording', body: 'Use Challenge to surface missing evidence and a falsification test, then record a human decision with a revisit trigger.', target: '.rail-actions' },
 ];
 
