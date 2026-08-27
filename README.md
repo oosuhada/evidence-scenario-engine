@@ -47,40 +47,6 @@ Paired-assumption Stability Map은 low/base/high 영역을 비교하고, Validat
 
 ![Stability and investigation workflow](docs/portfolio/04-stability-investigation.png)
 
-## Architecture & Topics / 아키텍처 및 주제
-
-### Architecture / 아키텍처
-
-```text
-Decision editor
-  ↓
-Assumptions + Evidence + Alternatives + Metrics
-  ↓
-Deterministic scenario engine
-  ↓
-Sensitivity / Stability / Boundary surface
-  ↓
-Validation investigation
-  ↓
-Human decision record
-
-Optional 3D prism = representation of the same model state
-```
-
-- **Frontend:** React, TypeScript, React Three Fiber, Drei, Motion.
-- **Backend:** FastAPI, PostgreSQL persistence, versioned decision snapshots and scenario runs.
-- **Model boundary:** seeded deterministic calculations; generated skeptic/critique stays outside the numeric calculation path.
-- **Decision memory:** named scenarios, versions, revisit conditions, investigation items, decision records.
-
-- **프론트엔드:** React, TypeScript, React Three Fiber, Drei, Motion.
-- **백엔드:** FastAPI, PostgreSQL persistence, versioned decision snapshot 및 scenario run.
-- **모델 경계:** seeded deterministic calculation을 사용하며 generated skeptic/critique는 숫자 계산 경로 밖에 둡니다.
-- **의사결정 메모리:** named scenario, version, revisit condition, investigation item, decision record를 저장합니다.
-
-### Topics / 주제
-
-[`decision-intelligence`](https://github.com/topics/decision-intelligence) · [`scenario-planning`](https://github.com/topics/scenario-planning) · [`sensitivity-analysis`](https://github.com/topics/sensitivity-analysis) · [`uncertainty`](https://github.com/topics/uncertainty) · [`human-in-the-loop`](https://github.com/topics/human-in-the-loop) · [`react-three-fiber`](https://github.com/topics/react-three-fiber) · [`fastapi`](https://github.com/topics/fastapi) · [`postgresql`](https://github.com/topics/postgresql) · [`typescript`](https://github.com/topics/typescript)
-
 ## Working flow / 작업 흐름
 
 ```text
@@ -111,29 +77,13 @@ Create or open decision / Decision 생성·열기
 - Version comparison, skeptic critique, revisit conditions, human decision record, export/share.  
   Version comparison, skeptic critique, revisit condition, human decision record, export/share.
 
-## Model and data boundary / 모델 및 데이터 경계
+## Architecture & Topics / 아키텍처 및 주제
 
-The bundled cases are synthetic and clearly labeled. Numeric model output comes from explicit formulas, declared assumptions, seeded uncertainty, and guardrails. A language model may critique the case, but it does not silently recalculate or replace the deterministic result.
+**Architecture / 아키텍처**  
+[`deterministic-simulation`](https://github.com/topics/deterministic-simulation) · [`decision-engine`](https://github.com/topics/decision-engine) · [`scenario-modeling`](https://github.com/topics/scenario-modeling) · [`sensitivity-analysis`](https://github.com/topics/sensitivity-analysis) · [`versioned-state`](https://github.com/topics/versioned-state) · [`human-in-the-loop`](https://github.com/topics/human-in-the-loop) · [`full-stack`](https://github.com/topics/full-stack) · [`data-visualization`](https://github.com/topics/data-visualization)
 
-기본 제공 케이스는 synthetic임을 명확히 표시합니다. 숫자 결과는 explicit formula, declared assumption, seeded uncertainty, guardrail에서 계산됩니다. Language model은 critique를 제공할 수 있지만 deterministic result를 몰래 다시 계산하거나 대체하지 않습니다.
+**Project context / 프로젝트 맥락**  
+[`decision-intelligence`](https://github.com/topics/decision-intelligence) · [`scenario-planning`](https://github.com/topics/scenario-planning) · [`strategic-planning`](https://github.com/topics/strategic-planning) · [`decision-support`](https://github.com/topics/decision-support) · [`uncertainty`](https://github.com/topics/uncertainty) · [`risk-analysis`](https://github.com/topics/risk-analysis) · [`what-if-analysis`](https://github.com/topics/what-if-analysis) · [`evidence-based-decision-making`](https://github.com/topics/evidence-based-decision-making) · [`explainable-ai`](https://github.com/topics/explainable-ai) · [`simulation`](https://github.com/topics/simulation)
 
-## Local development / 로컬 개발
-
-```bash
-corepack pnpm install
-docker compose up -d
-corepack pnpm dev
-```
-
-Default web address / 기본 주소: `http://localhost:3102`
-
-## Project status / 프로젝트 상태
-
-This is a working decision-modeling reference implementation and product experiment. It demonstrates inspectable decision mechanics rather than claiming that the bundled synthetic cases are validated business forecasts.
-
-동작하는 decision-modeling reference implementation이자 product experiment입니다. 기본 synthetic case를 검증된 비즈니스 forecast로 주장하는 것이 아니라, inspectable decision mechanics 자체를 보여주는 프로젝트입니다.
-
-## Credits / 크레딧
-
-Third-party libraries and visual references are documented in [`CREDITS.md`](CREDITS.md) and `docs/`.  
-외부 라이브러리와 시각적 레퍼런스는 [`CREDITS.md`](CREDITS.md) 및 `docs/`에 정리되어 있습니다.
+**Implementation stack / 구현 스택**  
+[`react`](https://github.com/topics/react) · [`typescript`](https://github.com/topics/typescript) · [`react-three-fiber`](https://github.com/topics/react-three-fiber) · [`threejs`](https://github.com/topics/threejs) · [`fastapi`](https://github.com/topics/fastapi) · [`postgresql`](https://github.com/topics/postgresql) · [`vite`](https://github.com/topics/vite) · [`zod`](https://github.com/topics/zod)
