@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { StrategyDecision } from '../decision-model/types';
+import { createTemplateDecision } from '../decision-model/factories';
 import { decisionRepository } from '../api/provider';
 import { parseRoute, type RouteState } from '../routes/route-state';
 import { HomeScreen } from '../routes/HomeScreen';
@@ -13,7 +14,25 @@ export function AppShell() {
   const [error, setError] = useState('');
 
   const refreshDecisions = useCallback(async () => {
-    const next = await decisionRepository.list();
+    let next = await decisionRepository.list();
+    const exampleTemplates = [
+      ['ai-adoption', 'Example · Manufacturing AI rollout'],
+      ['vendor-selection', 'Example · Strategic vendor selection'],
+      ['factory-automation', 'Example · Factory automation expansion'],
+      ['product-launch', 'Example · Product launch strategy'],
+    ] as const;
+    const existingTitles = new Set(next.map((decision) => decision.title));
+    const missing = exampleTemplates.filter(([, title]) => !existingTitles.has(title));
+    if (missing.length && next.length < 8) {
+      for (const [templateId, title] of missing) {
+        const sample = createTemplateDecision(templateId);
+        sample.title = title;
+        sample.status = 'draft';
+        sample.notes = 'Saved example decision. Change assumptions or click the decision boundary to see the model recompute; duplicate or replace inputs before real use.';
+        await decisionRepository.save(sample);
+      }
+      next = await decisionRepository.list();
+    }
     setDecisions(next);
   }, []);
 

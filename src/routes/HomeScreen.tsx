@@ -101,7 +101,7 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
       </header>
 
       <section className="home-hero">
-        <span className="portfolio-hero-thesis">INSPECTABLE AI SYSTEMS · DECISIONS / 02 OF 04</span>
+        <span className="portfolio-hero-thesis">EVIDENCE SCENARIO ENGINE · DECISION STABILITY WORKBENCH</span>
         <span className="eyebrow">MODEL → CHALLENGE → RECORD</span>
         <h1>See not only what wins, but exactly when the winner changes.</h1>
         <p>Keep calculation, evidence, uncertainty, and critique separate. The analytical views are primary; the 3D prism is a secondary encoding of the same inspectable model state.</p>

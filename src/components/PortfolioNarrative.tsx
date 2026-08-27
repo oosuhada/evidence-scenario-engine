@@ -13,13 +13,6 @@ const story = [
   ['RESULT', 'The model becomes a stress-testing workbench and a record of why a human made the decision.'],
 ];
 
-const series = [
-  ['01', 'Research', 'https://signals.oosu.dev/'],
-  ['02', 'Decisions', 'https://scenario.oosu.dev/'],
-  ['03', 'Generative UI', 'https://decision.oosu.dev/'],
-  ['04', 'Memory', 'https://memory.oosu.dev/'],
-] as const;
-
 function withAssumption(decision: StrategyDecision, assumption: Assumption, value: number) {
   const activeId = decision.activeVersionId;
   return {
@@ -76,7 +69,7 @@ export function PortfolioNarrative() {
 
   return (
     <section className="portfolio-narrative" aria-labelledby="scenario-case-title">
-      <div className="portfolio-thesis-row"><span>INSPECTABLE AI SYSTEMS / 02</span><p>A model should expose the assumptions that make its recommendation true—and the boundary where it stops being true.</p></div>
+      <div className="portfolio-thesis-row"><span>EVIDENCE SCENARIO ENGINE / DECISION STABILITY</span><p>A model should expose the assumptions that make its recommendation true—and the boundary where it stops being true.</p></div>
 
       <div className="scenario-killer">
         <div className="killer-copy"><span>KILLER INTERACTION / RUN THE REAL ENGINE</span><h2 id="scenario-case-title">Do not just show the winner. Move a real model assumption and watch the recommendation change.</h2><p>This control calls the same deterministic scenario engine used by the full workbench. The selected assumption is discovered by probing configured ranges for an actual leader switch.</p></div>
@@ -108,7 +101,6 @@ export function PortfolioNarrative() {
           </div></div>
 
           <div className="case-story">{story.map(([label, body], index) => <article key={label}><span>{String(index + 1).padStart(2, '0')} / {label}</span><p>{body}</p></article>)}</div>
-          <nav className="series-nav" aria-label="Inspectable AI Systems series">{series.map(([index, label, href]) => <a key={index} className={index === '02' ? 'active' : ''} href={href}><span>{index}</span><b>{label}</b></a>)}</nav>
         </div>
       </details>
     </section>

@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from . import models
 from .database import get_session
-from .repositories import ShareRepository, SqlAlchemyDecisionRepository, parse_iso
+from .repositories import ShareRepository, SqlAlchemyDecisionRepository, parse_iso, scoped_child_id
 from .schemas import DecisionPayload, ExportCreate, ScenarioRunCreate, ShareCreate, SkepticInput, SkepticOutput
 from .skeptic import DeterministicSkepticProvider, get_skeptic_provider
 
@@ -71,7 +71,7 @@ def persist_scenario_run(payload: ScenarioRunCreate, session: Session = Depends(
     run = models.ScenarioRun(
         id=payload.id,
         decision_id=payload.decisionId,
-        version_id=payload.versionId,
+        version_id=scoped_child_id(payload.decisionId, payload.versionId),
         seed=payload.seed,
         iterations=payload.iterations,
         model_version=payload.modelVersion,

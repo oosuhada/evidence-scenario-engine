@@ -323,6 +323,67 @@ export type StabilityMap = {
   baselineLeaderId: string;
 };
 
+export type StabilitySurfaceCell = {
+  xIndex: number;
+  yIndex: number;
+  xValue: number;
+  yValue: number;
+  leaderId: string;
+  leaderName: string;
+  leaderScore: number;
+  margin: number;
+  guardrailPass: boolean;
+};
+
+export type StabilitySurface = {
+  xAssumption: Assumption | null;
+  yAssumption: Assumption | null;
+  steps: number;
+  cells: StabilitySurfaceCell[];
+  baselineLeaderId: string;
+  distinctLeaderIds: string[];
+};
+
+function selectBoundaryPair(decision: StrategyDecision) {
+  if (decision.assumptions.length < 2) return { xAssumption: decision.assumptions[0] ?? null, yAssumption: null };
+  const candidates: Array<{ xAssumption: Assumption; yAssumption: Assumption; score: number }> = [];
+  const states: Array<'low' | 'base' | 'high'> = ['low', 'base', 'high'];
+
+  for (let xIndex = 0; xIndex < decision.assumptions.length; xIndex += 1) {
+    for (let yIndex = xIndex + 1; yIndex < decision.assumptions.length; yIndex += 1) {
+      const xAssumption = decision.assumptions[xIndex];
+      const yAssumption = decision.assumptions[yIndex];
+      const leaders = new Set<string>();
+      const guardrailStates = new Set<boolean>();
+      let tightestMargin = Number.POSITIVE_INFINITY;
+
+      for (const yState of states) {
+        for (const xState of states) {
+          const version = temporaryVersion(decision, {
+            [xAssumption.id]: stateValue(xAssumption, xState),
+            [yAssumption.id]: stateValue(yAssumption, yState),
+          }, `boundary-probe-${xIndex}-${yIndex}-${xState}-${yState}`, 70);
+          const candidate = { ...decision, versions: [...decision.versions, version], activeVersionId: version.id };
+          const run = runScenario(candidate, version.id);
+          const ranked = [...run.outcomes].sort((a, b) => {
+            if (a.guardrailPass !== b.guardrailPass) return a.guardrailPass ? -1 : 1;
+            return b.score - a.score;
+          });
+          leaders.add(run.recommendedAlternativeId);
+          guardrailStates.add(Boolean(ranked[0]?.guardrailPass));
+          tightestMargin = Math.min(tightestMargin, Math.abs((ranked[0]?.score ?? 0) - (ranked[1]?.score ?? 0)));
+        }
+      }
+
+      const impact = assumptionImpactMagnitude(decision, xAssumption) + assumptionImpactMagnitude(decision, yAssumption);
+      const score = leaders.size * 1000 + guardrailStates.size * 140 + Math.max(0, 100 - tightestMargin) + impact * 10;
+      candidates.push({ xAssumption, yAssumption, score });
+    }
+  }
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates[0] ?? { xAssumption: decision.assumptions[0], yAssumption: decision.assumptions[1] };
+}
+
 function stateValue(assumption: Assumption, state: 'low' | 'base' | 'high') {
   if (state === 'low') return assumption.min;
   if (state === 'high') return assumption.max;
@@ -367,5 +428,50 @@ export function calculateStabilityMap(decision: StrategyDecision): StabilityMap 
     cells,
     distinctLeaderIds: [...new Set(cells.map((cell) => cell.leaderId).filter(Boolean))],
     baselineLeaderId,
+  };
+}
+
+export function calculateStabilitySurface(decision: StrategyDecision, steps = 7): StabilitySurface {
+  const safeSteps = Math.max(3, Math.min(9, Math.round(steps)));
+  const { xAssumption, yAssumption } = selectBoundaryPair(decision);
+  const baselineLeaderId = runScenario(decision).recommendedAlternativeId;
+  if (!xAssumption || !yAssumption) return { xAssumption, yAssumption, steps: safeSteps, cells: [], baselineLeaderId, distinctLeaderIds: [] };
+
+  const cells: StabilitySurfaceCell[] = [];
+  for (let yIndex = safeSteps - 1; yIndex >= 0; yIndex -= 1) {
+    for (let xIndex = 0; xIndex < safeSteps; xIndex += 1) {
+      const xRatio = xIndex / (safeSteps - 1);
+      const yRatio = yIndex / (safeSteps - 1);
+      const xValue = xAssumption.min + (xAssumption.max - xAssumption.min) * xRatio;
+      const yValue = yAssumption.min + (yAssumption.max - yAssumption.min) * yRatio;
+      const version = temporaryVersion(decision, { [xAssumption.id]: xValue, [yAssumption.id]: yValue }, `surface-${xIndex}-${yIndex}`, 90);
+      const candidate = { ...decision, versions: [...decision.versions, version], activeVersionId: version.id };
+      const run = runScenario(candidate, version.id);
+      const ranked = [...run.outcomes].sort((a, b) => {
+        if (a.guardrailPass !== b.guardrailPass) return a.guardrailPass ? -1 : 1;
+        return b.score - a.score;
+      });
+      const leader = ranked[0];
+      const runnerUp = ranked[1];
+      cells.push({
+        xIndex,
+        yIndex,
+        xValue: round(xValue, 1),
+        yValue: round(yValue, 1),
+        leaderId: run.recommendedAlternativeId,
+        leaderName: decision.alternatives.find((alternative) => alternative.id === run.recommendedAlternativeId)?.name ?? 'None',
+        leaderScore: leader?.score ?? 0,
+        margin: round((leader?.score ?? 0) - (runnerUp?.score ?? 0), 1),
+        guardrailPass: Boolean(leader?.guardrailPass),
+      });
+    }
+  }
+  return {
+    xAssumption,
+    yAssumption,
+    steps: safeSteps,
+    cells,
+    baselineLeaderId,
+    distinctLeaderIds: [...new Set(cells.map((cell) => cell.leaderId).filter(Boolean))],
   };
 }

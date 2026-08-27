@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime
+from hashlib import sha256
 from typing import Any
 
 from sqlalchemy import delete, select
@@ -13,6 +14,13 @@ from . import models
 def parse_iso(value: str) -> datetime:
     normalized = value.replace("Z", "+00:00")
     return datetime.fromisoformat(normalized)
+
+
+def scoped_child_id(decision_id: str, child_id: str) -> str:
+    """Keep domain IDs inside the JSON snapshot while making normalized DB PKs decision-scoped."""
+    digest = sha256(f"{decision_id}:{child_id}".encode("utf-8")).hexdigest()[:24]
+    readable = child_id.replace(" ", "-")[:72]
+    return f"{readable}::{digest}"
 
 
 class DecisionRepository(ABC):
@@ -61,6 +69,10 @@ class SqlAlchemyDecisionRepository(DecisionRepository):
                 updated_at=parse_iso(payload["updatedAt"]),
             )
             self.session.add(row)
+            # Persist the parent row before synchronizing FK-backed child tables.
+            # These models intentionally do not rely on ORM relationship ordering,
+            # so an explicit flush keeps a brand-new decision from racing its children.
+            self.session.flush()
         else:
             row.title = payload["title"]
             row.question = payload["question"]
@@ -80,13 +92,13 @@ class SqlAlchemyDecisionRepository(DecisionRepository):
 
         for item in payload.get("alternatives", []):
             self.session.add(models.Alternative(
-                id=item["id"], decision_id=decision_id, name=item["name"],
+                id=scoped_child_id(decision_id, item["id"]), decision_id=decision_id, name=item["name"],
                 description=item.get("description", ""), base_metrics=item.get("baseMetrics", {}),
             ))
 
         for item in payload.get("assumptions", []):
             self.session.add(models.Assumption(
-                id=item["id"], decision_id=decision_id, name=item["name"],
+                id=scoped_child_id(decision_id, item["id"]), decision_id=decision_id, name=item["name"],
                 description=item.get("description", ""), value=item["value"],
                 minimum=item["min"], maximum=item["max"], unit=item.get("unit", ""),
                 confidence=item.get("confidence", 0.5), unresolved=item.get("unresolved", True),
@@ -95,14 +107,14 @@ class SqlAlchemyDecisionRepository(DecisionRepository):
 
         for item in payload.get("metrics", []):
             self.session.add(models.Metric(
-                id=item["id"], decision_id=decision_id, name=item["name"],
+                id=scoped_child_id(decision_id, item["id"]), decision_id=decision_id, name=item["name"],
                 unit=item.get("unit", ""), direction=item["direction"],
                 weight=item["weight"], guardrail=item.get("guardrail"),
             ))
 
         for item in payload.get("evidence", []):
             self.session.add(models.EvidenceItem(
-                id=item["id"], decision_id=decision_id, title=item["title"], source=item["source"],
+                id=scoped_child_id(decision_id, item["id"]), decision_id=decision_id, title=item["title"], source=item["source"],
                 note=item.get("note", ""), strength=item["strength"], relevance=item["relevance"],
                 stance=item["stance"], assumption_ids=item.get("assumptionIds", []),
                 added_at=parse_iso(item["addedAt"]),
@@ -110,7 +122,7 @@ class SqlAlchemyDecisionRepository(DecisionRepository):
 
         for item in payload.get("versions", []):
             self.session.add(models.ScenarioVersion(
-                id=item["id"], decision_id=decision_id, version_number=item["number"],
+                id=scoped_child_id(decision_id, item["id"]), decision_id=decision_id, version_number=item["number"],
                 label=item["label"], horizon_months=item["horizonMonths"], seed=item["seed"],
                 iterations=item["iterations"], model_version=item["modelVersion"],
                 assumption_values=item.get("assumptionValues", {}), notes=item.get("notes", ""),
@@ -119,7 +131,7 @@ class SqlAlchemyDecisionRepository(DecisionRepository):
 
         for item in payload.get("decisionRecords", []):
             self.session.add(models.DecisionRecord(
-                id=item["id"], decision_id=decision_id, version_id=item["versionId"],
+                id=scoped_child_id(decision_id, item["id"]), decision_id=decision_id, version_id=item["versionId"],
                 selected_alternative_id=item["selectedAlternativeId"], rationale=item["rationale"],
                 conditions=item.get("conditions", ""), recorded_at=parse_iso(item["recordedAt"]),
             ))
