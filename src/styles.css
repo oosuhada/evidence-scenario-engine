@@ -529,6 +529,7 @@ input[type='range'] { accent-color: #91cff4; }
 .flip-scores span { display: block; font: 8px 'IBM Plex Mono', monospace; color: #6d7c87; }
 .flip-scores strong { display: block; margin-top: 7px; font: 400 31px 'IBM Plex Mono', monospace; color: #aab9c3; }
 .flip-scores article.leader strong { color: #d8e9f3; }
+.flip-scores small { display: block; margin-top: 5px; color: #647681; font: 7px 'IBM Plex Mono', monospace; }
 .flip-result { margin: 10px 0 12px; padding: 13px; border-left: 2px solid #7898aa; background: #0c151b; }
 .flip-result strong { display: block; margin-top: 5px; color: #d8e8f1; font-size: 18px; font-weight: 400; }
 .flip-result p { margin: 5px 0 0; color: #778a97; font: 8px 'IBM Plex Mono', monospace; }
@@ -552,6 +553,43 @@ input[type='range'] { accent-color: #91cff4; }
 .case-story article:last-child { border-right: 0; }
 .case-story span { font: 7px 'IBM Plex Mono', monospace; color: #5d6f7b; }
 .case-story p { margin: 11px 0 0; color: #7d8b95; font-size: 9px; line-height: 1.55; }
+.mini-stability-proof { display: grid; grid-template-columns: 320px 1fr; gap: 22px; padding: 24px 0; border-top: 1px solid #27323b; }
+.mini-stability-proof > div:first-child > span { font: 8px 'IBM Plex Mono', monospace; color: #718b9d; letter-spacing: .08em; }
+.mini-stability-proof > div:first-child > strong { display: block; margin-top: 7px; color: #c9d8e1; font-size: 16px; font-weight: 400; }
+.mini-stability-proof > div:first-child > p { margin: 7px 0 0; color: #71818b; font-size: 9px; line-height: 1.5; }
+.mini-stability-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #2a3740; }
+.mini-stability-grid article { min-height: 62px; padding: 8px; border-right: 1px solid #26323a; border-bottom: 1px solid #26323a; display: grid; align-content: center; gap: 3px; background: #0a1015; }
+.mini-stability-grid article:nth-child(3n) { border-right: 0; }
+.mini-stability-grid article:nth-last-child(-n+3) { border-bottom: 0; }
+.mini-stability-grid article.switch { background: rgba(107, 55, 70, .16); }
+.mini-stability-grid span, .mini-stability-grid small { font: 7px 'IBM Plex Mono', monospace; color: #60727e; }
+.mini-stability-grid b { font-size: 9px; font-weight: 500; color: #b6c6cf; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini-stability-grid article.switch small { color: #c18a98; }
+.engineering-case { border-top: 1px solid #27323b; }
+.engineering-case > summary { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 20px; cursor: pointer; list-style: none; }
+.engineering-case > summary::-webkit-details-marker { display: none; }
+.engineering-case > summary span { font: 8px 'IBM Plex Mono', monospace; color: #718b9d; letter-spacing: .09em; }
+.engineering-case > summary b { color: #b7c8d2; font-size: 13px; font-weight: 400; }
+.engineering-case[open] > summary { border-bottom: 1px solid #27323b; }
+.engineering-case-body { padding-bottom: 18px; }
+.system-architecture { padding: 26px 0; border-top: 1px solid #27323b; }
+.system-architecture header { margin-bottom: 18px; display: grid; grid-template-columns: 250px 1fr; gap: 22px; }
+.system-architecture header span { font: 8px 'IBM Plex Mono', monospace; color: #718b9d; letter-spacing: .09em; }
+.system-architecture header h3 { margin: 0; color: #c7d4dc; font-size: 20px; line-height: 1.25; font-weight: 300; }
+.architecture-lanes { display: grid; grid-template-columns: 1fr 28px 1fr 28px 1fr; gap: 8px; align-items: stretch; }
+.architecture-lanes > article { min-height: 116px; border: 1px solid #34414a; background: #0b1116; padding: 12px; display: grid; align-content: start; gap: 5px; color: #8ba0ad; }
+.architecture-lanes > article > span { font: 7px 'IBM Plex Mono', monospace; color: #657987; }
+.architecture-lanes > article > b { color: #c3d2db; font-size: 14px; font-weight: 400; }
+.architecture-lanes > article > small { color: #6d7c87; font-size: 8px; line-height: 1.45; }
+.architecture-lanes > i { display: grid; place-items: center; font-style: normal; color: #526573; }
+.architecture-lanes .architecture-side { grid-column: span 2; border-style: dashed; }
+.architecture-lanes .architecture-side.human { grid-column: span 3; border-style: solid; border-color: #607768; background: #0c1510; }
+.series-nav { margin-top: 18px; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid #34414a; }
+.series-nav a { min-height: 56px; padding: 9px 11px; border-right: 1px solid #27323b; display: grid; gap: 4px; text-decoration: none; color: #8293a0; background: #0a1015; }
+.series-nav a:last-child { border-right: 0; }
+.series-nav a span { font: 7px 'IBM Plex Mono', monospace; color: #5e7180; }
+.series-nav a b { font-size: 11px; font-weight: 400; }
+.series-nav a.active { background: #0e1d25; box-shadow: inset 0 -3px #7298ad; color: #c6d8e2; }
 .header-guide-trigger { margin-top: 3px; width: fit-content; border: 0; border-bottom: 1px solid #536575; background: transparent; padding: 0 0 1px; color: #8499aa; font: 7px 'IBM Plex Mono', monospace; cursor: pointer; }
 .decision-guide { position: fixed; right: 20px; bottom: 20px; z-index: 150; width: min(390px, calc(100vw - 32px)); border: 1px solid #506273; background: rgba(8,13,18,.97); box-shadow: 0 24px 70px rgba(0,0,0,.48); padding: 14px; color: #c8d6e0; }
 .decision-guide-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 9px; border-bottom: 1px solid #293744; }
@@ -579,6 +617,12 @@ input[type='range'] { accent-color: #91cff4; }
   .architecture-flow span:not(:last-child)::after { display: none; }
   .case-story { grid-template-columns: 1fr 1fr; }
   .case-story article { border-bottom: 1px solid #27323b; }
+  .mini-stability-proof { grid-template-columns: 1fr; }
+  .system-architecture header { grid-template-columns: 1fr; gap: 7px; }
+  .architecture-lanes { grid-template-columns: 1fr; }
+  .architecture-lanes > i { min-height: 20px; transform: rotate(90deg); }
+  .architecture-lanes .architecture-side, .architecture-lanes .architecture-side.human { grid-column: auto; }
+  .series-nav { grid-template-columns: 1fr 1fr; }
   .decision-guide { left: 10px; right: 10px; bottom: 10px; width: auto; }
 }
 

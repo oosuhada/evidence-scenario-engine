@@ -6,11 +6,25 @@ Evidence Scenario Engine is a full-stack decision workbench for comparing altern
 
 ## Portfolio case study
 
-This project is **Inspectable AI Systems / 02 — Decisions**. Its portfolio question is: **can a decision tool show not only what wins, but when and why the winner changes?** The home experience now demonstrates that idea with an interactive recommendation flip before opening the full multi-assumption workbench.
+This project is **Inspectable AI Systems / 02 — Decisions**. Its portfolio question is: **can a decision tool show not only what wins, but when and why the winner changes?** The home interaction now calls the same `runScenario()` engine used by the workbench, automatically finds an assumption whose configured range contains a real leader switch, and exposes the actual paired-assumption `calculateStabilityMap()` result.
 
 The case study is organized as **Before → Problem → Insight → Architecture → Interaction → Result** and makes the model boundary explicit: numeric output is deterministic under declared assumptions; generated critique is kept outside the calculation path.
 
-![Evidence Scenario Engine portfolio overview](docs/portfolio-overview.png)
+### Killer interaction — move a real model assumption
+
+At the low end of the configured assumption range, the deterministic engine selects a different option:
+
+![Low assumption state with Controlled beta as model leader](docs/portfolio/01-killer-low.png)
+
+At the high end, the same engine and decision template switch the leader:
+
+![High assumption state with Phased launch as model leader](docs/portfolio/02-killer-high.png)
+
+### Stability and architecture proof
+
+![Actual paired-assumption 3x3 stability map](docs/portfolio/03-stability-map.png)
+
+![Decision engine architecture and trust boundaries](docs/portfolio/04-architecture.png)
 
 **Common approach:** inputs → forecast → polished chart.  
 **This system:** assumptions/evidence → deterministic scenarios → sensitivity/stability → validation investigation → explicit human decision.
