@@ -4,6 +4,7 @@ import type {
   DecisionTemplateId,
   EvidenceItem,
   MetricDefinition,
+  ScenarioSet,
   ScenarioVersion,
   StrategyDecision,
 } from './types';
@@ -147,6 +148,38 @@ function createVersion(assumptions: Assumption[], label = 'Baseline', number = 1
   };
 }
 
+function overallDirection(assumption: Assumption, metrics: MetricDefinition[]) {
+  return assumption.impacts.reduce((sum, impact) => {
+    const metric = metrics.find((entry) => entry.id === impact.metricId);
+    if (!metric) return sum;
+    const utilityDirection = metric.direction === 'maximize' ? 1 : -1;
+    return sum + (impact.effectAtMax - impact.effectAtMin) * metric.weight * utilityDirection;
+  }, 0);
+}
+
+function shiftedValue(assumption: Assumption, metrics: MetricDefinition[], favorable: boolean, strength: number) {
+  const highIsFavorable = overallDirection(assumption, metrics) >= 0;
+  const targetHigh = favorable ? highIsFavorable : !highIsFavorable;
+  const target = targetHigh ? assumption.max : assumption.min;
+  return assumption.value + (target - assumption.value) * strength;
+}
+
+function createDefaultScenarioSets(assumptions: Assumption[], metrics: MetricDefinition[]): ScenarioSet[] {
+  const timestamp = now();
+  const values = (mode: 'base' | 'upside' | 'downside' | 'stress') => Object.fromEntries(assumptions.map((assumption) => {
+    if (mode === 'base') return [assumption.id, assumption.value];
+    if (mode === 'upside') return [assumption.id, shiftedValue(assumption, metrics, true, 0.62)];
+    if (mode === 'downside') return [assumption.id, shiftedValue(assumption, metrics, false, 0.58)];
+    return [assumption.id, shiftedValue(assumption, metrics, false, 0.9)];
+  }));
+  return [
+    { id: makeId('scenario'), name: 'Base', kind: 'base', assumptionValues: values('base'), rationale: 'Current active assumption values.', revisitConditions: 'Refresh when a material assumption or evidence item changes.', createdAt: timestamp },
+    { id: makeId('scenario'), name: 'Upside', kind: 'upside', assumptionValues: values('upside'), rationale: 'Moves all assumptions toward their model-favorable configured bounds together.', revisitConditions: 'Use only if evidence supports the favorable movement across the linked assumptions.', createdAt: timestamp },
+    { id: makeId('scenario'), name: 'Downside', kind: 'downside', assumptionValues: values('downside'), rationale: 'Moves all assumptions toward adverse configured bounds without taking them to the extreme.', revisitConditions: 'Escalate if observed evidence crosses any adverse assumption threshold.', createdAt: timestamp },
+    { id: makeId('scenario'), name: 'Stress', kind: 'stress', assumptionValues: values('stress'), rationale: 'Pushes all assumptions close to their adverse configured bounds to expose fragile recommendations.', revisitConditions: 'If the selected decision cannot tolerate this state, define a mitigation or staged commitment.', createdAt: timestamp },
+  ];
+}
+
 function buildDecision(input: {
   templateId: DecisionTemplateId;
   title: string;
@@ -158,6 +191,7 @@ function buildDecision(input: {
   metrics?: MetricDefinition[];
 }): StrategyDecision {
   const assumptions = structuredClone(input.assumptions ?? baseAssumptions);
+  const metrics = structuredClone(input.metrics ?? baseMetrics);
   const version = createVersion(assumptions);
   const timestamp = now();
   return {
@@ -171,9 +205,11 @@ function buildDecision(input: {
     status: 'draft',
     alternatives: structuredClone(input.alternatives),
     assumptions,
-    metrics: structuredClone(input.metrics ?? baseMetrics),
+    metrics,
     evidence: structuredClone(input.evidence ?? []),
     versions: [version],
+    scenarioSets: createDefaultScenarioSets(assumptions, metrics),
+    investigationItems: [],
     activeVersionId: version.id,
     decisionRecords: [],
     shareLinks: [],

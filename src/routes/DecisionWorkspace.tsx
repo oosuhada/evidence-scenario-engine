@@ -34,6 +34,7 @@ import { OutcomeComparison } from '../components/analytical/OutcomeComparison';
 import { SensitivityTornado } from '../components/analytical/SensitivityTornado';
 import { ValidationPriority } from '../components/analytical/ValidationPriority';
 import { DecisionReadiness } from '../components/analytical/DecisionReadiness';
+import { ScenarioWorkbench } from '../components/analytical/ScenarioWorkbench';
 import { DependencyMap } from '../components/analytical/DependencyMap';
 import { CalculationBreakdown } from '../components/analytical/CalculationBreakdown';
 import { DecisionGuide } from '../components/DecisionGuide';
@@ -251,7 +252,8 @@ export function DecisionWorkspace({ initialDecision, readOnly = false, shared = 
 
           <div className="analysis-stack">
             <OutcomeComparison decision={workspace.decision} run={workspace.run} selectedAlternativeId={selectedAlternativeId} onSelect={setSelectedAlternativeId} />
-            <ValidationPriority decision={workspace.decision} sensitivity={workspace.sensitivity} />
+            <ScenarioWorkbench decision={workspace.decision} readOnly={readOnly} onApply={workspace.applyAssumptionSet} onSaveScenario={workspace.saveScenarioSet} onUpdateScenario={workspace.updateScenarioSet} onRemoveScenario={workspace.removeScenarioSet} onResolveInvestigation={workspace.resolveInvestigation} />
+            <ValidationPriority decision={workspace.decision} sensitivity={workspace.sensitivity} onCreateInvestigation={workspace.addInvestigation} readOnly={readOnly} />
             <DecisionReadiness decision={workspace.decision} run={workspace.run} />
             <div className="analysis-columns"><SensitivityTornado rows={workspace.sensitivity} /><CalculationBreakdown decision={workspace.decision} outcome={selectedOutcome} /></div>
             <DependencyMap decision={workspace.decision} />

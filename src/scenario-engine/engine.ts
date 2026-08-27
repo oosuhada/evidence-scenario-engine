@@ -5,6 +5,7 @@ import type {
   MetricDefinition,
   MetricOutcome,
   ScenarioRun,
+  ScenarioSet,
   ScenarioVersion,
   SensitivityResult,
   StrategyDecision,
@@ -237,4 +238,134 @@ export function compareVersions(decision: StrategyDecision, previousVersionId: s
       delta: round(currentValue - previousValue),
     };
   }).filter((entry) => Math.abs(entry.delta) > Number.EPSILON);
+}
+
+function temporaryVersion(decision: StrategyDecision, assumptionValues: Record<string, number>, suffix: string, iterations = 220): ScenarioVersion {
+  const active = decision.versions.find((entry) => entry.id === decision.activeVersionId) ?? decision.versions[decision.versions.length - 1];
+  if (!active) throw new Error('A scenario version is required before stress testing.');
+  return {
+    ...active,
+    id: `${active.id}-${suffix}`,
+    label: suffix,
+    iterations: Math.min(active.iterations, iterations),
+    assumptionValues: {
+      ...active.assumptionValues,
+      ...assumptionValues,
+    },
+  };
+}
+
+export type ScenarioSetComparison = {
+  scenarioSet: ScenarioSet;
+  run: ScenarioRun;
+  leaderName: string;
+  leaderScore: number;
+  runnerUpScore: number;
+  margin: number;
+  guardrailPass: boolean;
+};
+
+export function compareScenarioSets(decision: StrategyDecision): ScenarioSetComparison[] {
+  return decision.scenarioSets.map((scenarioSet) => {
+    const version = temporaryVersion(decision, scenarioSet.assumptionValues, `set-${scenarioSet.id}`, 260);
+    const candidate = {
+      ...decision,
+      versions: [...decision.versions, version],
+      activeVersionId: version.id,
+      assumptions: decision.assumptions.map((assumption) => ({
+        ...assumption,
+        value: scenarioSet.assumptionValues[assumption.id] ?? assumption.value,
+      })),
+    };
+    const run = runScenario(candidate, version.id);
+    const ranked = [...run.outcomes].sort((a, b) => {
+      if (a.guardrailPass !== b.guardrailPass) return a.guardrailPass ? -1 : 1;
+      return b.score - a.score;
+    });
+    const leader = ranked[0];
+    const runnerUp = ranked[1];
+    return {
+      scenarioSet,
+      run,
+      leaderName: decision.alternatives.find((alternative) => alternative.id === leader?.alternativeId)?.name ?? 'No eligible alternative',
+      leaderScore: leader?.score ?? 0,
+      runnerUpScore: runnerUp?.score ?? 0,
+      margin: round((leader?.score ?? 0) - (runnerUp?.score ?? 0), 1),
+      guardrailPass: Boolean(leader?.guardrailPass),
+    };
+  });
+}
+
+function assumptionImpactMagnitude(decision: StrategyDecision, assumption: Assumption) {
+  return assumption.impacts.reduce((sum, impact) => {
+    const metric = decision.metrics.find((entry) => entry.id === impact.metricId);
+    return sum + Math.abs(impact.effectAtMax - impact.effectAtMin) * (metric?.weight ?? 0);
+  }, 0);
+}
+
+export type StabilityCell = {
+  xAssumptionId: string;
+  yAssumptionId: string;
+  xState: 'low' | 'base' | 'high';
+  yState: 'low' | 'base' | 'high';
+  xValue: number;
+  yValue: number;
+  leaderId: string;
+  leaderName: string;
+  guardrailPass: boolean;
+};
+
+export type StabilityMap = {
+  xAssumption: Assumption | null;
+  yAssumption: Assumption | null;
+  cells: StabilityCell[];
+  distinctLeaderIds: string[];
+  baselineLeaderId: string;
+};
+
+function stateValue(assumption: Assumption, state: 'low' | 'base' | 'high') {
+  if (state === 'low') return assumption.min;
+  if (state === 'high') return assumption.max;
+  return assumption.value;
+}
+
+export function calculateStabilityMap(decision: StrategyDecision): StabilityMap {
+  const rankedAssumptions = [...decision.assumptions]
+    .sort((a, b) => assumptionImpactMagnitude(decision, b) - assumptionImpactMagnitude(decision, a));
+  const xAssumption = rankedAssumptions[0] ?? null;
+  const yAssumption = rankedAssumptions[1] ?? rankedAssumptions[0] ?? null;
+  if (!xAssumption || !yAssumption) {
+    return { xAssumption, yAssumption, cells: [], distinctLeaderIds: [], baselineLeaderId: runScenario(decision).recommendedAlternativeId };
+  }
+  const states: Array<'low' | 'base' | 'high'> = ['low', 'base', 'high'];
+  const cells: StabilityCell[] = [];
+  for (const yState of states) {
+    for (const xState of states) {
+      const xValue = stateValue(xAssumption, xState);
+      const yValue = stateValue(yAssumption, yState);
+      const version = temporaryVersion(decision, { [xAssumption.id]: xValue, [yAssumption.id]: yValue }, `stability-${xState}-${yState}`, 160);
+      const candidate = { ...decision, versions: [...decision.versions, version], activeVersionId: version.id };
+      const run = runScenario(candidate, version.id);
+      const leader = run.outcomes.find((outcome) => outcome.alternativeId === run.recommendedAlternativeId);
+      cells.push({
+        xAssumptionId: xAssumption.id,
+        yAssumptionId: yAssumption.id,
+        xState,
+        yState,
+        xValue,
+        yValue,
+        leaderId: run.recommendedAlternativeId,
+        leaderName: decision.alternatives.find((alternative) => alternative.id === run.recommendedAlternativeId)?.name ?? 'None',
+        guardrailPass: Boolean(leader?.guardrailPass),
+      });
+    }
+  }
+  const baselineLeaderId = runScenario(decision).recommendedAlternativeId;
+  return {
+    xAssumption,
+    yAssumption,
+    cells,
+    distinctLeaderIds: [...new Set(cells.map((cell) => cell.leaderId).filter(Boolean))],
+    baselineLeaderId,
+  };
 }

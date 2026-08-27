@@ -1,5 +1,7 @@
 # Evidence Scenario Engine
 
+The workbench now supports persistent multi-assumption **named scenario sets** (Base / Upside / Downside / Stress plus custom sets), a scenario matrix, deterministic recommendation-stability comparison, a paired-assumption stability map that exposes leader-switch regions, and a Validation Priority → evidence investigation workflow. Scenario rationale and revisit conditions are stored and compared alongside the model outputs.
+
 Evidence Scenario Engine is a full-stack decision workbench for comparing alternatives under explicit assumptions, evidence strength, uncertainty, and decision guardrails.
 
 The project began as a 3D interaction experiment called **Scenario Prism**. The prism remains as an optional visual encoding of model state, but the decision model, evidence ledger, sensitivity analysis, version history, and recorded decision are the primary product.

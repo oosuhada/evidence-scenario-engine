@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { EvidenceItem, ScenarioRun, StrategyDecision } from '../decision-model/types';
+import type { EvidenceItem, ScenarioRun, ScenarioSet, StrategyDecision } from '../decision-model/types';
 import { cloneAsNewVersion, createEntityId } from '../decision-model/factories';
 import { decisionRepository } from '../api/provider';
 import { calculateSensitivity, runScenario } from '../scenario-engine/engine';
@@ -99,6 +99,77 @@ export function useDecisionWorkspace(initialDecision: StrategyDecision, readOnly
     }));
   }, [updateDecision]);
 
+  const applyAssumptionSet = useCallback((assumptionValues: Record<string, number>) => {
+    if (readOnly) return;
+    const next: StrategyDecision = {
+      ...decision,
+      updatedAt: new Date().toISOString(),
+      assumptions: decision.assumptions.map((assumption) => ({
+        ...assumption,
+        value: assumptionValues[assumption.id] ?? assumption.value,
+      })),
+      versions: decision.versions.map((version) => version.id === decision.activeVersionId
+        ? { ...version, assumptionValues: { ...version.assumptionValues, ...assumptionValues } }
+        : version),
+    };
+    setDecision(next);
+    setRun(runScenario(next));
+    void persist(next);
+  }, [decision, persist, readOnly]);
+
+  const saveScenarioSet = useCallback((name: string, rationale: string, revisitConditions: string) => {
+    const scenarioSet: ScenarioSet = {
+      id: createEntityId('scenario'),
+      name,
+      kind: 'custom',
+      assumptionValues: Object.fromEntries(decision.assumptions.map((assumption) => [assumption.id, assumption.value])),
+      rationale,
+      revisitConditions,
+      createdAt: new Date().toISOString(),
+    };
+    updateDecision((current) => ({ ...current, scenarioSets: [...current.scenarioSets, scenarioSet] }));
+  }, [decision.assumptions, updateDecision]);
+
+  const updateScenarioSet = useCallback((scenarioSetId: string, patch: Partial<Pick<ScenarioSet, 'name' | 'rationale' | 'revisitConditions' | 'assumptionValues'>>) => {
+    updateDecision((current) => ({
+      ...current,
+      scenarioSets: current.scenarioSets.map((scenarioSet) => scenarioSet.id === scenarioSetId ? { ...scenarioSet, ...patch } : scenarioSet),
+    }));
+  }, [updateDecision]);
+
+  const removeScenarioSet = useCallback((scenarioSetId: string) => {
+    updateDecision((current) => ({
+      ...current,
+      scenarioSets: current.scenarioSets.filter((scenarioSet) => scenarioSet.id !== scenarioSetId || scenarioSet.kind !== 'custom'),
+    }));
+  }, [updateDecision]);
+
+  const addInvestigation = useCallback((assumptionId: string, evidenceRequest?: string) => {
+    const assumption = decision.assumptions.find((entry) => entry.id === assumptionId);
+    if (!assumption) return;
+    updateDecision((current) => {
+      if (current.investigationItems.some((item) => item.assumptionId === assumptionId && item.status === 'open')) return current;
+      return {
+        ...current,
+        investigationItems: [...current.investigationItems, {
+          id: createEntityId('investigation'),
+          assumptionId,
+          title: `Validate ${assumption.name}`,
+          evidenceRequest: evidenceRequest?.trim() || `Collect direct evidence that can move “${assumption.name}” inside its configured ${assumption.min}${assumption.unit}–${assumption.max}${assumption.unit} range, including an adverse observation that would falsify the current value.`,
+          status: 'open',
+          createdAt: new Date().toISOString(),
+        }],
+      };
+    });
+  }, [decision.assumptions, updateDecision]);
+
+  const resolveInvestigation = useCallback((investigationId: string) => {
+    updateDecision((current) => ({
+      ...current,
+      investigationItems: current.investigationItems.map((item) => item.id === investigationId ? { ...item, status: 'resolved', resolvedAt: new Date().toISOString() } : item),
+    }));
+  }, [updateDecision]);
+
   const addEvidence = useCallback((input: Omit<EvidenceItem, 'id' | 'addedAt'>) => {
     updateDecision((current) => ({
       ...current,
@@ -134,6 +205,12 @@ export function useDecisionWorkspace(initialDecision: StrategyDecision, readOnly
     createVersion,
     setHorizon,
     setAssumption,
+    applyAssumptionSet,
+    saveScenarioSet,
+    updateScenarioSet,
+    removeScenarioSet,
+    addInvestigation,
+    resolveInvestigation,
     addEvidence,
     recordDecision,
   };

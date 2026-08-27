@@ -68,6 +68,7 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
         const parsed = importDecisionSchema.parse(JSON.parse(raw));
         const base = createBlankDecision();
         const versions = parsed.versions?.length ? parsed.versions : base.versions;
+        const scenarioSets = parsed.scenarioSets?.length ? parsed.scenarioSets : base.scenarioSets;
         decision = {
           ...base,
           ...parsed,
@@ -76,6 +77,8 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
           updatedAt: base.updatedAt,
           status: parsed.status ?? 'draft',
           versions,
+          scenarioSets,
+          investigationItems: parsed.investigationItems ?? [],
           activeVersionId: parsed.activeVersionId && versions.some((version) => version.id === parsed.activeVersionId) ? parsed.activeVersionId : versions[0].id,
           shareLinks: [],
           decisionRecords: [],

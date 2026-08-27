@@ -70,6 +70,28 @@ export interface ScenarioVersion {
   notes: string;
 }
 
+export type ScenarioSetKind = 'base' | 'upside' | 'downside' | 'stress' | 'custom';
+
+export interface ScenarioSet {
+  id: string;
+  name: string;
+  kind: ScenarioSetKind;
+  assumptionValues: Record<string, number>;
+  rationale: string;
+  revisitConditions: string;
+  createdAt: string;
+}
+
+export interface InvestigationItem {
+  id: string;
+  assumptionId: string;
+  title: string;
+  evidenceRequest: string;
+  status: 'open' | 'resolved';
+  createdAt: string;
+  resolvedAt?: string;
+}
+
 export interface DecisionRecord {
   id: string;
   recordedAt: string;
@@ -100,6 +122,8 @@ export interface StrategyDecision {
   metrics: MetricDefinition[];
   evidence: EvidenceItem[];
   versions: ScenarioVersion[];
+  scenarioSets: ScenarioSet[];
+  investigationItems: InvestigationItem[];
   activeVersionId: string;
   decisionRecords: DecisionRecord[];
   shareLinks: ShareLink[];

@@ -1,12 +1,14 @@
-import { AlertTriangle, CheckCircle2, FlaskConical } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, FlaskConical, Plus } from 'lucide-react';
 import type { SensitivityResult, StrategyDecision } from '../../decision-model/types';
 
 type Props = {
   decision: StrategyDecision;
   sensitivity: SensitivityResult[];
+  onCreateInvestigation?: (assumptionId: string) => void;
+  readOnly?: boolean;
 };
 
-export function ValidationPriority({ decision, sensitivity }: Props) {
+export function ValidationPriority({ decision, sensitivity, onCreateInvestigation, readOnly = false }: Props) {
   const sensitivityById = new Map(sensitivity.map((item) => [item.assumptionId, item]));
   const rows = decision.assumptions.map((assumption) => {
     const linked = decision.evidence.filter((item) => item.assumptionIds.includes(assumption.id));
@@ -53,6 +55,7 @@ export function ValidationPriority({ decision, sensitivity }: Props) {
                 {row.unresolved || row.linkedCount === 0 ? <AlertTriangle size={12} /> : <CheckCircle2 size={12} />}
                 <span>{row.linkedCount === 0 ? 'NO EVIDENCE' : row.unresolved ? 'UNRESOLVED' : `SENS. ${row.modelSensitivity.toFixed(1)}`}</span>
               </div>
+              {!readOnly && onCreateInvestigation ? <button className="validation-request" type="button" onClick={() => onCreateInvestigation(row.id)}><Plus size={11} /> Investigation</button> : null}
             </article>
           );
         })}

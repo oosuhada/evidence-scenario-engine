@@ -64,6 +64,26 @@ const versionSchema = z.object({
   notes: z.string(),
 });
 
+const scenarioSetSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  kind: z.enum(['base', 'upside', 'downside', 'stress', 'custom']),
+  assumptionValues: z.record(z.number()),
+  rationale: z.string(),
+  revisitConditions: z.string(),
+  createdAt: z.string(),
+});
+
+const investigationItemSchema = z.object({
+  id: z.string().min(1),
+  assumptionId: z.string().min(1),
+  title: z.string().min(1),
+  evidenceRequest: z.string().min(1),
+  status: z.enum(['open', 'resolved']),
+  createdAt: z.string(),
+  resolvedAt: z.string().optional(),
+});
+
 const decisionRecordSchema = z.object({
   id: z.string().min(1),
   recordedAt: z.string(),
@@ -94,6 +114,8 @@ export const strategyDecisionSchema = z.object({
   metrics: z.array(metricSchema),
   evidence: z.array(evidenceSchema),
   versions: z.array(versionSchema).min(1),
+  scenarioSets: z.array(scenarioSetSchema).default([]),
+  investigationItems: z.array(investigationItemSchema).default([]),
   activeVersionId: z.string().min(1),
   decisionRecords: z.array(decisionRecordSchema),
   shareLinks: z.array(shareLinkSchema),
