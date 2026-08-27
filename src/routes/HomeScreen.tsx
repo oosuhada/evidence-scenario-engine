@@ -5,6 +5,7 @@ import { createBlankDecision, createSampleDecision, createTemplateDecision } fro
 import { importDecisionSchema } from '../schemas/decision';
 import { decisionRepository } from '../api/provider';
 import { decisionPath, navigate } from './route-state';
+import { PortfolioNarrative } from '../components/PortfolioNarrative';
 
 const templates: Array<{ id: Exclude<DecisionTemplateId, 'blank'>; name: string; code: string; description: string }> = [
   { id: 'ai-adoption', code: 'T01', name: 'AI adoption', description: 'Adoption, data readiness, integration, evidence and staged deployment.' },
@@ -100,8 +101,9 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
       </header>
 
       <section className="home-hero">
+        <span className="portfolio-hero-thesis">INSPECTABLE AI SYSTEMS · DECISIONS / 02 OF 04</span>
         <span className="eyebrow">MODEL → CHALLENGE → RECORD</span>
-        <h1>Turn strategic assumptions into a decision you can inspect.</h1>
+        <h1>See not only what wins, but exactly when the winner changes.</h1>
         <p>Keep calculation, evidence, uncertainty, and critique separate. The analytical views are primary; the 3D prism is a secondary encoding of the same inspectable model state.</p>
         <div className="hero-actions">
           <button type="button" className="primary-action" onClick={() => void saveAndOpen(createBlankDecision())}><Plus size={15} /> Create blank decision</button>
@@ -117,6 +119,8 @@ export function HomeScreen({ decisions, onRefresh }: { decisions: StrategyDecisi
         <article><span>02</span><strong>Inspect model sensitivity</strong><p>Evidence and assumption ranges determine uncertainty; validation priority shows what to test next.</p></article>
         <article><span>03</span><strong>Challenge and record</strong><p>Critique the weak case, set a revisit trigger, then record the human decision separately from the model.</p></article>
       </section>
+
+      <PortfolioNarrative />
 
       <section className="template-index" aria-labelledby="template-heading">
         <div className="index-heading"><span>SYNTHETIC STARTING STRUCTURES</span><h2 id="template-heading">Templates</h2><p>Use a synthetic domain structure to understand the model, then replace every assumption and evidence item with your own data.</p></div>

@@ -4,6 +4,17 @@ The workbench now supports persistent multi-assumption **named scenario sets** (
 
 Evidence Scenario Engine is a full-stack decision workbench for comparing alternatives under explicit assumptions, evidence strength, uncertainty, and decision guardrails.
 
+## Portfolio case study
+
+This project is **Inspectable AI Systems / 02 — Decisions**. Its portfolio question is: **can a decision tool show not only what wins, but when and why the winner changes?** The home experience now demonstrates that idea with an interactive recommendation flip before opening the full multi-assumption workbench.
+
+The case study is organized as **Before → Problem → Insight → Architecture → Interaction → Result** and makes the model boundary explicit: numeric output is deterministic under declared assumptions; generated critique is kept outside the calculation path.
+
+![Evidence Scenario Engine portfolio overview](docs/portfolio-overview.png)
+
+**Common approach:** inputs → forecast → polished chart.  
+**This system:** assumptions/evidence → deterministic scenarios → sensitivity/stability → validation investigation → explicit human decision.
+
 The project began as a 3D interaction experiment called **Scenario Prism**. The prism remains as an optional visual encoding of model state, but the decision model, evidence ledger, sensitivity analysis, version history, and recorded decision are the primary product.
 
 ## Problem
